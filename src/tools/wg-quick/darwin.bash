@@ -280,11 +280,12 @@ set_dns() {
 }
 
 del_dns() {
+	collect_new_service_dns
 	local service response
 	for service in "${!SERVICE_DNS[@]}"; do
 		while read -r response; do
 			[[ $response == *Error* ]] && echo "$response" >&2
-		done < <(cmd networksetup -setdnsservers "$service" ${SERVICE_DNS["$service"]} || true)
+		done < <(cmd networksetup -setdnsservers "$service" "Empty" || true)
 	done
 }
 
@@ -442,6 +443,7 @@ cmd_down() {
 	execute_hooks "${PRE_DOWN[@]}"
 	[[ $SAVE_CONFIG -eq 0 ]] || save_config
 	del_if
+	del_dns
 	execute_hooks "${POST_DOWN[@]}"
 }
 
